@@ -123,7 +123,7 @@ class ThresholdViewSet(CurrentUserQuerySetMixin, viewsets.GenericViewSet):
             # to verify calories taken on a day against his threshold
             query_user = user_models.User.objects.filter(user_id=query_user).first()
 
-        queryset = (
+        calorie_queryset = (
             queryset
             .annotate(
                 record_date=Trunc(
@@ -137,7 +137,27 @@ class ThresholdViewSet(CurrentUserQuerySetMixin, viewsets.GenericViewSet):
             .order_by('-record_date')
         )
 
+        price_queryset = (
+            queryset
+            .annotate(
+                record_month=Trunc(
+                    'taken_at',
+                    'month',
+                    tzinfo=pytz.timezone(settings.TIME_ZONE)
+                )
+            )
+            .annotate(price_sum=Coalesce(Sum('price'), Value(0)))
+            .values('record_month', 'price_sum')
+            .order_by('-record_month')
+        )
+
         return Response({'results': {
-            record['record_date'].date().isoformat(): record['calorie_sum'] > query_user.daily_calorie_threshold
-            for record in list(queryset)
+            'calorie_thresholds': {
+                record['record_date'].date().isoformat(): record['calorie_sum'] > query_user.daily_calorie_threshold
+                for record in list(calorie_queryset)
+            },
+            'price_thresholds': {
+                record['record_month'].date().isoformat(): record['price_sum'] > query_user.monthly_price_threshold
+                for record in list(price_queryset)
+            }
         }})

@@ -43,6 +43,12 @@ class ReportSerializer(serializers.Serializer):
     avg_per_user_per_day_calories = serializers.DecimalField(max_digits=10, decimal_places=2)
 
 
+class ThresholdsSerializer(serializers.Serializer):
+
+    calorie_thresholds = serializers.DictField()
+    price_thresholds = serializers.DictField()
+
+
 class ThresholdSerializer(serializers.Serializer):
 
-    results = serializers.DictField()
+    results = ThresholdsSerializer()

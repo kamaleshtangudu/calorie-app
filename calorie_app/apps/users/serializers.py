@@ -20,6 +20,6 @@ class UserModelSerializer(serializers.ModelSerializer):
         model = user_models.User
         fields = [
             'user_id', 'first_name', 'last_name', 'role',
-            'daily_calorie_threshold', 'daily_price_threshold',
+            'daily_calorie_threshold', 'monthly_price_threshold',
             'today_calorie_sum', 'current_month_price_sum'
         ]

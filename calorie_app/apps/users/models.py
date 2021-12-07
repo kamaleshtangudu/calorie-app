@@ -23,7 +23,7 @@ class User(BaseModel):
         help_text='Calorie limit per day as set by the user, units is Cal.'
     )
 
-    daily_price_threshold = models.DecimalField(
+    monthly_price_threshold = models.DecimalField(
         decimal_places=2,
         max_digits=10,
         default=1000,

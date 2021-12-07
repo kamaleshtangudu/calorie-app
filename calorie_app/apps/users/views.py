@@ -24,7 +24,7 @@ class UserViewSet(CurrentUserQuerySetMixin, mixins.ListModelMixin, mixins.Retrie
 
     search_fields = ['first_name', 'last_name']
 
-    ordering_fields = ['daily_calorie_threshold', 'daily_price_threshold']
+    ordering_fields = ['daily_calorie_threshold', 'monthly_price_threshold']
 
     def get_queryset(self):
         queryset = super().get_queryset()
