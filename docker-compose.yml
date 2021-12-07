@@ -1,0 +1,45 @@
+version: '3.4'
+services:
+    django:
+        build: .
+        command: sh -c "wait-for db:5432 && wait-for redis:6379 && python -X dev manage.py runserver 0.0.0.0:8000"
+        ports:
+              - "8000:8000"
+        depends_on:
+            - "db"
+        env_file:
+            - ./.env
+        volumes:
+            - ./:/src/
+    db:
+        image: postgres:12.0
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=${POSTGRESQL_DB_USER}
+            - POSTGRES_PASSWORD=${POSTGRESQL_DB_PASSWORD}
+            - POSTGRES_DB=${POSTGRESQL_DB_NAME}
+        # ports:
+        #     - 5432:5432
+    redis:
+        image: redis:alpine
+        hostname: "redis"
+        # ports:
+        #     - "6379:6379"
+        restart: on-failure
+    # celery:
+    #     build: .
+    #     command: sh -c "wait-for db:5432 && wait-for redis:6379 && celery -A calorie_app.celery_app worker --loglevel info -Q calorie_app_default"
+    #     env_file:
+    #         - ./.env
+    #     volumes:
+    #         - ./:/src/
+    # celery_beat:
+    #     build: .
+    #     command: sh -c "wait-for db:5432 && wait-for redis:6379 && celery beat -A calorie_app.celery_app -l info"
+    #     env_file:
+    #         - ./.env
+    #     volumes:
+    #         - ./:/src/
+volumes:
+  postgres_data:

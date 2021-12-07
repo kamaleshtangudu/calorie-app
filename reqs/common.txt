@@ -1,0 +1,89 @@
+# ### Core Packages
+Django==3.1.13
+djangorestframework==3.12.2
+
+# For Postgres Access
+# We are using binary as psycopg2 alone requires system dependencies
+psycopg2-binary==2.8.5
+
+# Async Tasks
+celery==4.4.5
+redis==3.5.3
+django-celery-beat==2.0.0
+django-redis==4.11.0
+
+# ### Manipulating settings
+
+# Settings to be class based
+django-configurations==2.2
+
+# Read from .env file smartly
+django-dotenv==1.4.2
+
+# Live constance
+django-constance==2.8.0
+
+
+# ### Utility Packages
+
+# Filters and Camel case conversion
+django-filter==2.3.0
+djangorestframework-camel-case==1.1.2
+djangorestframework-filters==1.0.0.dev0
+
+# Soft Delete Manager
+django-safedelete==1.0.0
+
+# Upsertion
+django-postgres-extra==2.0.2
+
+# File backend
+django-storages==1.11.1
+
+# boto3
+boto3==1.13.25
+
+# Health Check
+django-health-check==3.16.4
+
+# For model field status tracking
+django-model-utils==4.0.0
+
+# Retrying library
+tenacity==6.2.0
+
+
+# ### Developer Packages
+
+# Auto-generate Swagger
+drf-yasg==1.20.0
+
+# Pylint
+pylint==2.6.0
+pylint-django==2.3.0
+git-pylint-commit-hook==2.5.1
+
+# Sending mails as celery task
+django-celery-email==3.0.0
+
+# Production-grade WSGI server
+gunicorn==19.9.0
+
+django-json-widget==1.0.1
+django-picklefield==3.0.1
+PyJWT==1.7.1
+
+# JWT RSA Algo support
+cryptography==3.1
+
+#WhiteNoise for serving static files
+whitenoise[brotli]==5.2.0
+
+# To allow CORS
+django-cors-headers==3.7.0
+
+# Monitoring Tools
+newrelic~=6.2
+
+# For Gunicorn multiple worker connections
+gevent~=21.1

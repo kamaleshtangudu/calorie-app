@@ -1,0 +1,16 @@
+variables:
+  SERVICE_NAME: calorie-app
+  IMAGE_NAME: calorie-app
+  PIPELINE_URL: $CI_PIPELINE_URL
+  REQUESTOR: $GITLAB_USER_NAME
+  BRANCH: $CI_COMMIT_REF_NAME
+  PYLINT_SCRIPT: 'pylint --exit-zero calorie_app -r n --rcfile=.pylintrc -f colorized --fail-under=8 --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" | tee pylint.txt'
+  PYLINT_REPORT_PATH: pylint.txt
+  COVERAGE_SCRIPT: './test.sh'
+  COVERAGE_REPORT_PATH: coverage.xml
+  SONAR_SOURCE: '.'
+
+include:
+  - project: 'inconnect/cookie-cutter'
+    ref: master
+    file: 'cookie_cutter/ci_templates/inconnect-vcn.yml'
