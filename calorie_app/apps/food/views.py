@@ -19,6 +19,8 @@ from apps.users import models as user_models
 
 class FoodViewSet(CurrentUserQuerySetMixin, MultiplePermissionMixin, MultipleSerializerMixin, viewsets.ModelViewSet):
 
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
     serializer_class = food_serializers.FoodModelSerializer
 
     queryset = food_models.Food.objects.select_related('user').all().order_by('-taken_at')
@@ -27,12 +29,12 @@ class FoodViewSet(CurrentUserQuerySetMixin, MultiplePermissionMixin, MultipleSer
 
     filterset_fields = {
         'user': ['exact'],
-        'taken_at': ['gte', 'lte', 'date__range']
+        'taken_at': ['gte', 'lte', 'date__range', 'gt', 'lt']
     }
 
     search_fields = ['name']
 
-    ordering_fields = ['taken_at', 'calories', 'price']
+    ordering_fields = ['name', 'taken_at', 'calories', 'price']
 
     def get_queryset(self):
 
@@ -40,7 +42,7 @@ class FoodViewSet(CurrentUserQuerySetMixin, MultiplePermissionMixin, MultipleSer
 
         # Admins can ask food of any user, if not provided we fallback to the current user(admin itself)
         # Normal users cannot ask for other user, because the data is already filtered wrt to their accessible rows
-        if not self.request.query_params.get('user'):
+        if not self.request.query_params.get('user') and self.action == 'list':
             queryset = queryset.filter(user=self.request.user)
 
         return queryset
@@ -77,7 +79,7 @@ class ReportViewSet(viewsets.GenericViewSet):
         users_count = user_models.User.objects.all().count()
 
         avg_per_user_per_day_calories = food_models.Food.objects.filter(
-            taken_at__gte=timezone.now() - datetime.timedelta(days=7)
+            taken_at__gte=start_time_of_the_week
         ).aggregate(
             avg_per_user_per_day_calories=Coalesce(
                 Cast(Sum('calories'), FloatField()) / (users_count * 7),
@@ -104,7 +106,7 @@ class ThresholdViewSet(CurrentUserQuerySetMixin, viewsets.GenericViewSet):
 
     filterset_fields = {
         'user': ['exact'],
-        'taken_at': ['gte', 'lte', 'date__range']
+        'taken_at': ['gte', 'lte', 'date__range', 'gt', 'lt']
     }
 
     @action(methods=['get'], detail=False, pagination_class=None)
@@ -132,6 +134,7 @@ class ThresholdViewSet(CurrentUserQuerySetMixin, viewsets.GenericViewSet):
                     tzinfo=pytz.timezone(settings.TIME_ZONE)
                 )
             )
+            .values('record_date')
             .annotate(calorie_sum=Coalesce(Sum('calories'), Value(0)))
             .values('record_date', 'calorie_sum')
             .order_by('-record_date')
@@ -146,18 +149,21 @@ class ThresholdViewSet(CurrentUserQuerySetMixin, viewsets.GenericViewSet):
                     tzinfo=pytz.timezone(settings.TIME_ZONE)
                 )
             )
+            .values('record_month')
             .annotate(price_sum=Coalesce(Sum('price'), Value(0)))
             .values('record_month', 'price_sum')
             .order_by('-record_month')
         )
 
         return Response({'results': {
-            'calorie_thresholds': {
-                record['record_date'].date().isoformat(): record['calorie_sum'] > query_user.daily_calorie_threshold
+            'calorie_thresholds': [
+                record['record_date'].date().isoformat()
                 for record in list(calorie_queryset)
-            },
+                if record['calorie_sum'] > query_user.daily_calorie_threshold
+            ],
             'price_thresholds': {
-                record['record_month'].date().isoformat(): record['price_sum'] > query_user.monthly_price_threshold
+                record['record_month'].date().isoformat()
                 for record in list(price_queryset)
+                if record['price_sum'] > query_user.monthly_price_threshold
             }
         }})

@@ -45,8 +45,8 @@ class ReportSerializer(serializers.Serializer):
 
 class ThresholdsSerializer(serializers.Serializer):
 
-    calorie_thresholds = serializers.DictField()
-    price_thresholds = serializers.DictField()
+    calorie_thresholds = serializers.ListField(child=serializers.DateField())
+    price_thresholds = serializers.ListField(child=serializers.DateField())
 
 
 class ThresholdSerializer(serializers.Serializer):
