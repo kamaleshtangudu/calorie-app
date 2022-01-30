@@ -6,8 +6,8 @@
 
 ### Prerequisites
 
-* Python 3.6+
-* Postgres 9.6+
+* Python 3.9+
+* Postgres 11+
 * Redis 5
 
 ## Setup steps
